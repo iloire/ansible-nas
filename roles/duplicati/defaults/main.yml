@@ -18,5 +18,8 @@ duplicati_hostname: "duplicati"
 
 duplicati_memory: 1g
 
+duplicati_encryption_key: "change-me"
+duplicati_webservice_password: "change-me"
+
 # docker
 duplicati_container_name: duplicati
