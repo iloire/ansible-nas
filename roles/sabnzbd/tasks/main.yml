@@ -38,8 +38,7 @@
           homepage.description: Sabnzbd
           homepage.widget.type: sabnzbd
           homepage.widget.url: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ sabnzbd_port }}"
-          homepage.widget.username: "{{ lookup('ansible.builtin.env', 'SABNZBD_USERNAME') }}"
-          homepage.widget.password: "{{ lookup('ansible.builtin.env', 'SABNZBD_PASSWORD') }}"
+          homepage.widget.key: "{{ lookup('ansible.builtin.env', 'SABNZBD_KEY') }}"
   when: sabnzbd_enabled is true
 
 - name: Stop Sabnzbd

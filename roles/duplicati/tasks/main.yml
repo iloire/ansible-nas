@@ -35,6 +35,11 @@
           traefik.http.routers.duplicati.tls.domains[0].main: "{{ ansible_nas_domain }}"
           traefik.http.routers.duplicati.tls.domains[0].sans: "*.{{ ansible_nas_domain }}"
           traefik.http.services.duplicati.loadbalancer.server.port: "8200"
+          homepage.group: System Tools
+          homepage.name: duplicati
+          homepage.icon: duplicati.png
+          homepage.href: "https://duplicati.{{ hostvars[inventory_hostname]['ansible_nas_domain'] }}"
+          homepage.description: Duplicati
   when: duplicati_enabled is true
 
 - name: Stop Duplicati

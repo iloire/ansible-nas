@@ -50,6 +50,7 @@ homepage_widgets_yaml:
       uptime: true
       units: metric # only used by cpu temp
       refresh: 60000 # optional, in ms
+      disk: /mnt/external-disk1
 
 homepage_bookmarks_yaml:
   - Developer:

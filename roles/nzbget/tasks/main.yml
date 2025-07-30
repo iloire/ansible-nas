@@ -38,6 +38,8 @@
           homepage.description: Nzbget
           homepage.widget.type: nzbget
           homepage.widget.url: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ nzbget_port }}"
+          homepage.widget.username: "{{ lookup('ansible.builtin.env', 'NZBGET_USERNAME') }}"
+          homepage.widget.password: "{{ lookup('ansible.builtin.env', 'NZBGET_PASSWORD') }}"
   when: nzbget_enabled is true
 
 - name: Stop NZBget
