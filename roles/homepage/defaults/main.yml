@@ -28,12 +28,6 @@ homepage_settings_yaml:
   language: "{{ homepage_locale }}"
   showStats: true
 
-homepage_services_yaml:
-  - Networking:
-      - Router:
-          icon: asus-router
-          href: http://192.168.1.1/
-          description: Asus Router
 
 homepage_widgets_yaml:
   - search:
