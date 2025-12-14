@@ -30,6 +30,11 @@
           traefik.http.routers.lidarr.tls.domains[0].main: "{{ ansible_nas_domain }}"
           traefik.http.routers.lidarr.tls.domains[0].sans: "*.{{ ansible_nas_domain }}"
           traefik.http.services.lidarr.loadbalancer.server.port: "8686"
+          homepage.group: Media
+          homepage.name: Lidarr
+          homepage.icon: lidarr
+          homepage.href: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ lidarr_port }}/"
+          homepage.description: Lidarr
   when: lidarr_enabled is true
 
 - name: Stop Lidarr

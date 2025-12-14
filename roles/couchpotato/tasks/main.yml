@@ -34,6 +34,11 @@
           traefik.http.routers.couchpotato.tls.domains[0].main: "{{ ansible_nas_domain }}"
           traefik.http.routers.couchpotato.tls.domains[0].sans: "*.{{ ansible_nas_domain }}"
           traefik.http.services.couchpotato.loadbalancer.server.port: "5050"
+          homepage.group: Media
+          homepage.name: CouchPotato
+          homepage.icon: couchpotato
+          homepage.href: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ couchpotato_port }}/movies/"
+          homepage.description: CouchPotato
   when: couchpotato_enabled is true
 
 - name: Stop Couchpotato
