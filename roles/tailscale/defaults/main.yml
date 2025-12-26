@@ -1,0 +1,34 @@
+---
+# enable or disable the application
+tailscale_enabled: false
+
+# Tailscale auth key - get from https://login.tailscale.com/admin/settings/keys
+# Generate a reusable auth key for headless authentication
+tailscale_auth_key: ""
+
+# Tailscale hostname (how this device appears in your tailnet)
+tailscale_hostname: "{{ ansible_nas_hostname }}"
+
+# Enable Tailscale as a subnet router to access your LAN
+# Set to your LAN subnet, e.g., "192.168.1.0/24"
+tailscale_advertise_routes: ""
+
+# Enable as exit node (allows routing all traffic through this NAS)
+tailscale_exit_node: false
+
+# Accept routes advertised by other nodes
+tailscale_accept_routes: false
+
+# Accept DNS settings from Tailscale
+tailscale_accept_dns: true
+
+# docker
+tailscale_container_name: "tailscale"
+tailscale_image_name: "tailscale/tailscale"
+tailscale_image_version: "latest"
+
+# data directory
+tailscale_data_directory: "{{ docker_home }}/tailscale"
+
+# specs
+tailscale_memory: 256m
