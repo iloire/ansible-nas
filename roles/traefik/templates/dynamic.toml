@@ -1,0 +1,13 @@
+# External hosts - managed by Ansible
+{% for host in traefik_external_hosts %}
+
+[http.routers.{{ host.name }}]
+  rule = "Host(`{{ host.host }}`)"
+  service = "{{ host.name }}"
+  [http.routers.{{ host.name }}.tls]
+    certResolver = "letsencrypt"
+
+[http.services.{{ host.name }}.loadBalancer]
+  [[http.services.{{ host.name }}.loadBalancer.servers]]
+    url = "{{ host.backend }}"
+{% endfor %}

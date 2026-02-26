@@ -8,12 +8,20 @@
       with_items:
         - "{{ traefik_data_directory }}"
         - "{{ traefik_data_directory }}/letsencrypt"
+        - "{{ traefik_data_directory }}/dynamic"
 
     - name: Template Traefik config.toml
       ansible.builtin.template:
         src: traefik.toml
         dest: "{{ traefik_data_directory }}/traefik.toml"
       register: template_config
+
+    - name: Template Traefik external hosts config
+      ansible.builtin.template:
+        src: dynamic.toml
+        dest: "{{ traefik_data_directory }}/dynamic/external-hosts.toml"
+      when: traefik_external_hosts | length > 0
+      register: template_dynamic_config
 
     - name: Traefik Docker Container
       community.docker.docker_container:
@@ -23,12 +31,13 @@
         network_mode: host
         volumes:
           - "{{ traefik_data_directory }}/traefik.toml:/etc/traefik/traefik.toml:ro"
+          - "{{ traefik_data_directory }}/dynamic:/etc/traefik/dynamic:ro"
           - "{{ traefik_data_directory }}/letsencrypt:/letsencrypt:rw"
           - "/var/run/docker.sock:/var/run/docker.sock:ro"
         env: "{{ traefik_environment_variables }}"
         restart_policy: unless-stopped
         memory: "{{ traefik_memory }}"
-        recreate: "{{ template_config is changed }}"
+        recreate: "{{ template_config is changed or (template_dynamic_config is defined and template_dynamic_config is changed) }}"
         labels:
           homepage.group: Networking
           homepage.name: Traefik
