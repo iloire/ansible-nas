@@ -1,0 +1,21 @@
+---
+- name: Install send-watchdog-report script
+  ansible.builtin.copy:
+    src: send-watchdog-report
+    dest: /usr/local/bin/send-watchdog-report
+    mode: "0755"
+  become: true
+  when: watchdog_report_enabled
+
+- name: Set up watchdog report cron job
+  ansible.builtin.cron:
+    name: "watchdog server health report"
+    minute: "*/5"
+    job: "WATCHDOG_API_KEY={{ watchdog_api_key }} WATCHDOG_SERVICES={{ watchdog_services }} /usr/local/bin/send-watchdog-report"
+  when: watchdog_report_enabled
+
+- name: Remove watchdog report cron job
+  ansible.builtin.cron:
+    name: "watchdog server health report"
+    state: absent
+  when: not watchdog_report_enabled

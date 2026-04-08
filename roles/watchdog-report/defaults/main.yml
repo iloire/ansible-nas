@@ -1,0 +1,4 @@
+---
+watchdog_report_enabled: false
+watchdog_api_key: ""
+watchdog_services: ""
