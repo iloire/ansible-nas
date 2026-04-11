@@ -31,6 +31,16 @@
         memory_swap: "{{ duplicati_memory }}"
         pids_limit: 200
         cpu_shares: 256
+        healthcheck:
+          # Accepts any HTTP response (2xx/3xx/4xx) — "socket is up and answering HTTP".
+          # Fails only on connection refused / timeout / DNS error, which is exactly the
+          # crash-loop failure mode we're catching. `curl` without `-f` to avoid marking
+          # the container unhealthy on 401/403 login-wall responses from Duplicati 2.0.8+.
+          test: ["CMD-SHELL", "curl -sS -o /dev/null http://localhost:8200/ || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 90s
         labels:
           traefik.enable: "{{ duplicati_available_externally | string }}"
           traefik.http.routers.duplicati.rule: "Host(`{{ duplicati_hostname }}.{{ ansible_nas_domain }}`)"

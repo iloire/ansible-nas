@@ -32,6 +32,13 @@
         memory_swap: "{{ jellyfin_memory }}"
         pids_limit: 500
         cpu_shares: 1024
+        healthcheck:
+          # /health is jellyfin's built-in liveness endpoint; any HTTP response counts.
+          test: ["CMD-SHELL", "curl -sS -o /dev/null http://localhost:8096/health || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 120s
         labels:
           traefik.enable: "{{ jellyfin_available_externally | string }}"
           traefik.http.routers.jellyfin.rule: "Host(`{{ jellyfin_hostname }}.{{ ansible_nas_domain }}`)"

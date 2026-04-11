@@ -39,6 +39,13 @@
         memory_swap: "{{ homepage_memory }}"
         pids_limit: 200
         cpu_shares: 512
+        healthcheck:
+          # Alpine-based image — wget ships, curl does not.
+          test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:3000/ || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 30s
         labels:
           traefik.enable: "{{ homepage_available_externally | string }}"
           traefik.http.routers.homepage.rule: "Host(`{{ homepage_hostname }}.{{ ansible_nas_domain }}`)"

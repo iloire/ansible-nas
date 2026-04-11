@@ -26,6 +26,14 @@
         memory_swap: "{{ prowlarr_memory }}"
         pids_limit: 200
         cpu_shares: 512
+        healthcheck:
+          # Any HTTP response on /ping means the app is up; curl without -f so
+          # auth-walled responses still count as alive.
+          test: ["CMD-SHELL", "curl -sS -o /dev/null http://localhost:9696/ping || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 60s
         labels:
           traefik.enable: "{{ prowlarr_available_externally | string }}"
           traefik.http.routers.prowlarr.rule: "Host(`{{ prowlarr_hostname }}.{{ ansible_nas_domain }}`)"

@@ -41,6 +41,15 @@
         pids_limit: 200
         cpu_shares: 2048
         recreate: "{{ template_config is changed or (template_dynamic_config is defined and template_dynamic_config is changed) }}"
+        healthcheck:
+          # Traefik image is FROM scratch — no shell, so CMD form (not CMD-SHELL).
+          # `traefik healthcheck --ping` reads the static config for the ping URL;
+          # requires `[ping] entryPoint = "traefik"` in traefik.toml.
+          test: ["CMD", "traefik", "healthcheck", "--ping"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 30s
         labels:
           homepage.group: Networking
           homepage.name: Traefik

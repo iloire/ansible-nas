@@ -54,6 +54,13 @@
         memory_swap: "{{ tailscale_memory }}"
         pids_limit: 200
         cpu_shares: 1024
+        healthcheck:
+          # Native probe — confirms the backend is up and authenticated.
+          test: ["CMD-SHELL", "tailscale status --self=true >/dev/null 2>&1 || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 60s
         labels:
           homepage.group: Networking
           homepage.name: Tailscale

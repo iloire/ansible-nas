@@ -28,6 +28,14 @@
         memory_swap: "{{ bazarr_memory }}"
         pids_limit: 200
         cpu_shares: 512
+        healthcheck:
+          # Bazarr has no /ping — the root returns 200 or 3xx when alive.
+          # curl without -f so auth-walled responses still count as alive.
+          test: ["CMD-SHELL", "curl -sS -o /dev/null http://localhost:6767/ || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 90s
         labels:
           traefik.enable: "{{ bazarr_available_externally | string }}"
           traefik.http.routers.bazarr.rule: "Host(`{{ bazarr_hostname }}.{{ ansible_nas_domain }}`)"

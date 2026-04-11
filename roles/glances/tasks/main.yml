@@ -21,6 +21,13 @@
         memory_swap: "{{ glances_memory }}"
         pids_limit: 200
         cpu_shares: 256
+        healthcheck:
+          # /api/3/status is unauth — any HTTP response means the web API is up.
+          test: ["CMD-SHELL", "curl -sS -o /dev/null http://localhost:61208/api/3/status || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 30s
         labels:
           traefik.enable: "{{ glances_available_externally | string }}"
           traefik.http.routers.glances.rule: "Host(`{{ glances_hostname }}.{{ ansible_nas_domain }}`)"

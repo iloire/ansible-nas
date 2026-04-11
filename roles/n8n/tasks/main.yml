@@ -25,6 +25,13 @@
         memory_swap: "{{ n8n_memory }}"
         pids_limit: 300
         cpu_shares: 512
+        healthcheck:
+          # /healthz is n8n's built-in readiness endpoint — any HTTP response means up.
+          test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:5678/healthz || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 60s
         env:
           N8N_BASIC_AUTH_ACTIVE: "true"
           N8N_BASIC_AUTH_USER: "{{ n8n_basic_auth_user }}"

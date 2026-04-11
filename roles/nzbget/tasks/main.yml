@@ -27,6 +27,13 @@
         memory_swap: "{{ nzbget_memory }}"
         pids_limit: 300
         cpu_shares: 256
+        healthcheck:
+          # Root answers regardless of basic-auth; curl without -f to tolerate 401.
+          test: ["CMD-SHELL", "curl -sS -o /dev/null http://localhost:6789/ || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 30s
         labels:
           traefik.enable: "{{ nzbget_available_externally | string }}"
           traefik.http.routers.nzbget.rule: "Host(`{{ nzbget_hostname }}.{{ ansible_nas_domain }}`)"

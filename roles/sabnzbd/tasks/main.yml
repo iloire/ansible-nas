@@ -28,6 +28,13 @@
         memory_swap: "{{ sabnzbd_memory }}"
         pids_limit: 300
         cpu_shares: 256
+        healthcheck:
+          # Version endpoint is unauth — any HTTP response means up.
+          test: ["CMD-SHELL", "curl -sS -o /dev/null 'http://localhost:8080/api?mode=version' || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 30s
         labels:
           traefik.enable: "{{ sabnzbd_available_externally | string }}"
           traefik.http.routers.sabnzbd.rule: "Host(`{{ sabnzbd_hostname }}.{{ ansible_nas_domain }}`)"

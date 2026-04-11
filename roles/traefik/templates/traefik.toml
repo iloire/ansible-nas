@@ -45,6 +45,7 @@
   level = "{{ traefik_log_level }}"
 
 [ping]
+  entryPoint = "traefik"
   terminatingStatusCode = 0
 
 [certificatesResolvers]
