@@ -28,8 +28,9 @@
         pids_limit: 200
         cpu_shares: 512
         healthcheck:
-          # /api/v1/status is unauth — any HTTP response means the API is up.
-          test: ["CMD-SHELL", "curl -sS -o /dev/null http://localhost:5055/api/v1/status || exit 1"]
+          # Overseerr image ships wget but not curl; busybox wget returns 0 on 200.
+          # /api/v1/status is unauth and returns JSON {version,...}.
+          test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:5055/api/v1/status || exit 1"]
           interval: 30s
           timeout: 10s
           retries: 3

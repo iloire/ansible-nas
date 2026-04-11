@@ -29,13 +29,14 @@
         memory_swap: "{{ portainer_memory }}"
         pids_limit: 200
         cpu_shares: 1024
-        healthcheck:
-          # /api/status is unauthenticated — any HTTP response means the API is up.
-          test: ["CMD-SHELL", "wget -qO- http://localhost:9000/api/status >/dev/null 2>&1 || exit 1"]
-          interval: 30s
-          timeout: 10s
-          retries: 3
-          start_period: 30s
+        # No Docker HEALTHCHECK: portainer/portainer-ce is FROM scratch, so there
+        # is no /bin/sh, no busybox, no curl/wget inside the container — Docker
+        # cannot execute any probe command. Liveness is covered externally by
+        # Devil Watchdog (SECURITY_TASKS.md task 7c) probing
+        # https://portainer.{domain}/api/status from outside. Do not add a
+        # healthcheck block here; any CMD-SHELL probe will fail with
+        # "exec: /bin/sh: no such file or directory" and mark the container
+        # unhealthy even while portainer is serving traffic normally.
         labels:
           traefik.enable: "{{ portainer_available_externally | string }}"
           traefik.http.routers.portainer.rule: "Host(`{{ portainer_hostname }}.{{ ansible_nas_domain }}`)"
