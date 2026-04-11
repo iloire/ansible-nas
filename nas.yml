@@ -468,7 +468,3 @@
     - role: znc
       tags:
         - znc
-
-    - role: watchdog-report
-      tags:
-        - watchdog-report
