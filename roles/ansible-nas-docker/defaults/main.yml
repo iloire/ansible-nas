@@ -15,3 +15,7 @@ docker_storage_driver: overlay2
 docker_daemon_json:
   data-root: "{{ docker_image_directory }}"
   storage-driver: "{{ docker_storage_driver }}"
+  log-driver: json-file
+  log-opts:
+    max-size: "10m"
+    max-file: "3"
