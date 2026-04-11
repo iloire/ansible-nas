@@ -36,7 +36,7 @@
         restart_policy: unless-stopped
         restart: "{{ homepage_config is changed }}"
         memory: "{{ homepage_memory }}"
-        memswap_limit: "{{ homepage_memory }}"
+        memory_swap: "{{ homepage_memory }}"
         pids_limit: 200
         cpu_shares: 512
         labels:

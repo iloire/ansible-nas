@@ -18,7 +18,7 @@
         restart_policy: unless-stopped
         security_opts: "{{ glances_security_options }}"
         memory: "{{ glances_memory }}"
-        memswap_limit: "{{ glances_memory }}"
+        memory_swap: "{{ glances_memory }}"
         pids_limit: 200
         cpu_shares: 256
         labels:

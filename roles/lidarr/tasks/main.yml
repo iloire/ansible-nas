@@ -23,7 +23,7 @@
           PGID: "{{ lidarr_group_id }}"
         restart_policy: unless-stopped
         memory: "{{ lidarr_memory }}"
-        memswap_limit: "{{ lidarr_memory }}"
+        memory_swap: "{{ lidarr_memory }}"
         pids_limit: 200
         cpu_shares: 512
         labels:
