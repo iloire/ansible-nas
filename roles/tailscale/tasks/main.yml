@@ -51,6 +51,9 @@
         network_mode: host
         restart_policy: unless-stopped
         memory: "{{ tailscale_memory }}"
+        memswap_limit: "{{ tailscale_memory }}"
+        pids_limit: 200
+        cpu_shares: 1024
         labels:
           homepage.group: Networking
           homepage.name: Tailscale

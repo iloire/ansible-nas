@@ -37,6 +37,9 @@
         env: "{{ traefik_environment_variables }}"
         restart_policy: unless-stopped
         memory: "{{ traefik_memory }}"
+        memswap_limit: "{{ traefik_memory }}"
+        pids_limit: 200
+        cpu_shares: 2048
         recreate: "{{ template_config is changed or (template_dynamic_config is defined and template_dynamic_config is changed) }}"
         labels:
           homepage.group: Networking
