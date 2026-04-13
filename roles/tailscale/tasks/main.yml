@@ -24,7 +24,13 @@
 
     - name: Build Tailscale extra arguments
       ansible.builtin.set_fact:
+        # --reset makes inventory the single source of truth: any flag previously
+        # set but no longer listed here is cleared on next `tailscale up`.
+        # Without it, removing a flag (e.g. --advertise-routes) leaves the
+        # container in a boot loop because tailscaled refuses to silently drop
+        # persisted settings.
         tailscale_extra_args: >-
+          --reset
           --hostname={{ tailscale_hostname }}
           {% if tailscale_advertise_routes %}--advertise-routes={{ tailscale_advertise_routes }}{% endif %}
           {% if tailscale_exit_node %}--advertise-exit-node{% endif %}
