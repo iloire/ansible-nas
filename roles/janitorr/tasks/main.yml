@@ -1,0 +1,55 @@
+---
+- name: Start Janitorr
+  block:
+    - name: Create Janitorr Directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "{{ janitorr_config_directory }}"
+        - "{{ janitorr_logs_directory }}"
+        - "{{ janitorr_leaving_soon_directory }}"
+
+    - name: Janitorr Configuration
+      ansible.builtin.template:
+        src: application.yml.j2
+        dest: "{{ janitorr_config_directory }}/application.yml"
+        mode: "0640"
+      notify: Restart Janitorr
+
+    - name: Janitorr
+      community.docker.docker_container:
+        name: "{{ janitorr_container_name }}"
+        image: "{{ janitorr_image_name }}:{{ janitorr_image_version }}"
+        pull: true
+        volumes:
+          # Janitorr must see the media at the SAME paths Sonarr and Radarr
+          # report, or its file-system checks silently match nothing.
+          - "{{ janitorr_config_directory }}/application.yml:/config/application.yml:ro"
+          - "{{ janitorr_logs_directory }}:/logs:rw"
+          - "{{ janitorr_tv_directory }}:/tv:rw"
+          - "{{ janitorr_movies_directory }}:/movies:rw"
+          - "{{ janitorr_leaving_soon_directory }}:/data/media/leaving-soon:rw"
+        env:
+          TZ: "{{ ansible_nas_timezone }}"
+        restart_policy: unless-stopped
+        memory: "{{ janitorr_memory }}"
+        memory_swap: "{{ janitorr_memory }}"
+        pids_limit: 200
+        cpu_shares: 512
+        labels:
+          homepage.group: "Download Tools"
+          homepage.name: "Janitorr"
+          homepage.icon: "janitorr"
+          homepage.description: >-
+            Media cleanup{{ ' (DRY RUN)' if janitorr_dry_run | bool else '' }}
+
+  when: janitorr_enabled is true
+
+- name: Stop Janitorr
+  block:
+    - name: Stop Janitorr
+      community.docker.docker_container:
+        name: "{{ janitorr_container_name }}"
+        state: absent
+  when: janitorr_enabled is false

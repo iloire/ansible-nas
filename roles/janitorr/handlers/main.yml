@@ -1,0 +1,7 @@
+---
+- name: Restart Janitorr
+  community.docker.docker_container:
+    name: "{{ janitorr_container_name }}"
+    state: started
+    restart: true
+  when: janitorr_enabled is true

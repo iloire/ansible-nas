@@ -209,6 +209,10 @@
       tags:
         - jellyfin
 
+    - role: janitorr
+      tags:
+        - janitorr
+
     - role: joomla
       tags:
         - joomla

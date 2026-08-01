@@ -1,0 +1,71 @@
+---
+janitorr_enabled: false
+
+# directories
+janitorr_config_directory: "{{ docker_home }}/janitorr/config"
+janitorr_logs_directory: "{{ docker_home }}/janitorr/logs"
+janitorr_tv_directory: "{{ tv_root }}"
+janitorr_movies_directory: "{{ movies_root }}"
+# "Leaving Soon" symlink staging dir. Must live on the SAME filesystem as the
+# media, because Janitorr populates it with symlinks that Jellyfin has to follow.
+janitorr_leaving_soon_directory: "{{ samba_shares_root }}/leaving-soon"
+# Janitorr measures free space here to decide which expiration tier applies.
+# This is a path INSIDE the container, and it must land on the media volume --
+# pointing it at "/" would measure the Docker root disk instead.
+janitorr_free_space_check_dir: "/tv"
+
+# docker
+janitorr_container_name: "janitorr"
+janitorr_image_name: "ghcr.io/schaka/janitorr"
+janitorr_image_version: "jvm-stable"
+
+# specs
+janitorr_memory: 1g
+
+# SAFETY -- leave this true until you have read a full run of logs and agree
+# with every deletion it proposes. Nothing is ever removed while dry-run is on.
+# This is the only thing standing between a misconfigured path and your library.
+janitorr_dry_run: true
+janitorr_run_once: false
+janitorr_log_level: INFO
+
+# clients -- API keys come from the environment, same as the homepage widgets
+# (see my-ansible-nas/.homepage_keys).
+janitorr_sonarr_url: "http://{{ ansible_default_ipv4.address }}:{{ sonarr_port }}"
+janitorr_sonarr_api_key: "{{ lookup('ansible.builtin.env', 'SONARR_KEY') }}"
+janitorr_radarr_url: "http://{{ ansible_default_ipv4.address }}:{{ radarr_port }}"
+janitorr_radarr_api_key: "{{ lookup('ansible.builtin.env', 'RADARR_KEY') }}"
+janitorr_jellyfin_url: "http://{{ ansible_default_ipv4.address }}:{{ jellyfin_port_http }}"
+janitorr_jellyfin_api_key: "{{ lookup('ansible.builtin.env', 'JELLYFIN_KEY') }}"
+# Jellyfin DELETION needs a real user login -- an API key alone is not enough.
+# Set these in group_vars (ideally from vault) before turning dry-run off.
+janitorr_jellyfin_username: ""
+janitorr_jellyfin_password: ""
+janitorr_jellyfin_delete: true
+janitorr_jellyfin_exclude_favorited: true
+
+# Tag any series/movie in Sonarr/Radarr with one of these to make it immortal.
+janitorr_exclusion_tags:
+  - janitorr_keep
+
+# How long before deletion an item is surfaced in the "Leaving Soon" collection.
+janitorr_leaving_soon: 14d
+
+# Expiration tiers: <free disk percent>: <age>. Janitorr picks the tier matching
+# current free space -- the fuller the disk, the more aggressive the expiry.
+# Nothing is deleted unless free space drops below the highest key.
+janitorr_movie_expiration:
+  5: 15d
+  10: 30d
+  15: 60d
+  20: 90d
+janitorr_season_expiration:
+  5: 15d
+  10: 20d
+  15: 60d
+  20: 120d
+
+# Off by default: both need deliberate tagging in the *arrs to do anything
+# useful, and tag-based deletion ignores the free-space gate entirely.
+janitorr_tag_based_deletion_enabled: false
+janitorr_episode_deletion_enabled: false

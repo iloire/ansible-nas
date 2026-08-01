@@ -1,0 +1,108 @@
+---
+# {{ ansible_managed }}
+# Janitorr configuration -- rendered by the janitorr ansible-nas role.
+# Do not edit on the host; change the role defaults or group_vars and re-deploy.
+
+logging:
+  level:
+    com.github.schaka: {{ janitorr_log_level }}
+  file:
+    name: "/logs/janitorr.log"
+
+file-system:
+  access: true
+  validate-seeding: true
+  leaving-soon-dir: "/data/media/leaving-soon"
+  media-server-leaving-soon-dir: "/data/media/leaving-soon"
+  from-scratch: true
+  free-space-check-dir: "{{ janitorr_free_space_check_dir }}"
+
+application:
+  dry-run: {{ janitorr_dry_run | bool | lower }}
+  run-once: {{ janitorr_run_once | bool | lower }}
+  whole-tv-show: false
+  whole-show-seeding-check: false
+  leaving-soon: {{ janitorr_leaving_soon }}
+  leaving-soon-threshold-offset-percent: 5
+  exclusion-tags:
+{% for tag in janitorr_exclusion_tags %}
+    - "{{ tag }}"
+{% endfor %}
+
+  media-deletion:
+    enabled: true
+    movie-expiration:
+{% for percent, age in janitorr_movie_expiration.items() %}
+      {{ percent }}: {{ age }}
+{% endfor %}
+    season-expiration:
+{% for percent, age in janitorr_season_expiration.items() %}
+      {{ percent }}: {{ age }}
+{% endfor %}
+
+  tag-based-deletion:
+    enabled: {{ janitorr_tag_based_deletion_enabled | bool | lower }}
+    minimum-free-disk-percent: 100
+    schedules: []
+
+  episode-deletion:
+    enabled: {{ janitorr_episode_deletion_enabled | bool | lower }}
+    clean-older-seasons: false
+    tag: janitorr_daily
+    max-episodes: 10
+    max-age: 30d
+
+clients:
+  default:
+    connect-timeout: 60s
+    read-timeout: 60s
+    level: NONE
+
+  sonarr:
+    enabled: true
+    url: "{{ janitorr_sonarr_url }}"
+    api-key: "{{ janitorr_sonarr_api_key }}"
+    delete-empty-shows: false
+    determine-age-by: MOST_RECENT
+    import-exclusions: false
+
+  radarr:
+    enabled: true
+    url: "{{ janitorr_radarr_url }}"
+    api-key: "{{ janitorr_radarr_api_key }}"
+    only-delete-files: false
+    determine-age-by: most_recent
+    import-exclusions: false
+
+  bazarr:
+    enabled: false
+
+  jellyfin:
+    enabled: true
+    url: "{{ janitorr_jellyfin_url }}"
+    api-key: "{{ janitorr_jellyfin_api_key }}"
+    username: "{{ janitorr_jellyfin_username }}"
+    password: "{{ janitorr_jellyfin_password }}"
+    delete: {{ janitorr_jellyfin_delete | bool | lower }}
+    exclude-favorited: {{ janitorr_jellyfin_exclude_favorited | bool | lower }}
+    leaving-soon-tv: "Shows (Leaving Soon)"
+    leaving-soon-movies: "Movies (Leaving Soon)"
+    leaving-soon-type: MOVIES_AND_TV
+
+  emby:
+    enabled: false
+
+  jellyseerr:
+    enabled: false
+
+  # No watch-history source is configured. Without Jellystat, Streamystats or
+  # janitorr-stats, Janitorr deletes purely on FILE AGE gated by free disk space
+  # -- it cannot tell whether you have actually watched something.
+  jellystat:
+    enabled: false
+
+  streamystats:
+    enabled: false
+
+  janitorr-stats:
+    enabled: false
