@@ -11,6 +11,10 @@
         - ansible-nas-users
         - ansible-nas
 
+    - role: samba-system-users
+      tags:
+        - samba
+
     - role: vladgh.samba.server
       tags:
         - samba
