@@ -46,4 +46,11 @@
       community.docker.docker_container:
         name: "{{ timemachine_container_name }}"
         state: absent
+
+    # Without this, avahi keeps announcing a "Time Capsule" with nothing behind it.
+    - name: Remove timemachine service from avahi
+      ansible.builtin.file:
+        path: "/etc/avahi/services/timemachine.service"
+        state: absent
+      notify: reload avahi configuration
   when: timemachine_enabled is false
