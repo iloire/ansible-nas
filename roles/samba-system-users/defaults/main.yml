@@ -1,9 +1,0 @@
----
-# Service accounts that exist only to log in to Samba (e.g. Home Assistant
-# writing its backups). smbpasswd in vladgh.samba.server needs a matching Unix
-# account, so this role must run before it. Each gets a same-named group, no
-# home and no login shell. Set the list in the inventory:
-#
-#   samba_system_users:
-#     - hassio
-samba_system_users: []
