@@ -401,6 +401,10 @@
       tags:
         - tailscale
 
+    - role: tailscale_dns
+      tags:
+        - tailscale_dns
+
     - role: tautulli
       tags:
         - tautulli

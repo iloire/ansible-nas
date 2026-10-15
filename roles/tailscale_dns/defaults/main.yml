@@ -1,0 +1,19 @@
+# enable or disable the application
+tailscale_dns_enabled: false
+
+# Tailscale IP of this host. dnsmasq listens only here (invisible on the LAN)
+# and answers every name under tailscale_dns_domains with this same IP.
+tailscale_dns_ip: ""
+
+# Domains answered with tailscale_dns_ip (subdomains included). Each one must
+# also be added as a "Restrict to domain" on the custom nameserver in the
+# Tailscale admin console (DNS → Nameservers) — that part can't be provisioned.
+tailscale_dns_domains: []
+
+# docker
+tailscale_dns_container_name: "tailscale-dns"
+tailscale_dns_image_name: "4km3/dnsmasq"
+tailscale_dns_image_version: "2.90-r3"
+
+# specs
+tailscale_dns_memory: 32m

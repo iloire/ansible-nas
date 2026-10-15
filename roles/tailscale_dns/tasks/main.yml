@@ -1,0 +1,34 @@
+# Split DNS for tailnet clients: Route53 hands out the LAN IP, which is
+# unreachable away from home (no subnet route, on purpose). Tailscale forwards
+# these domains to this dnsmasq, which answers with the Tailscale IP instead.
+- name: Start Tailscale DNS
+  block:
+    - name: Create Tailscale DNS Docker Container
+      community.docker.docker_container:
+        name: "{{ tailscale_dns_container_name }}"
+        image: "{{ tailscale_dns_image_name }}:{{ tailscale_dns_image_version }}"
+        pull: true
+        # host network, like the tailscale container, so tailscale0 is visible
+        network_mode: host
+        capabilities:
+          - NET_ADMIN
+        # --bind-dynamic waits for tailscale0 to get its IP after a reboot
+        # instead of failing; --no-resolv/--no-hosts: answer our domains only.
+        command: >-
+          --keep-in-foreground
+          --no-resolv
+          --no-hosts
+          --listen-address={{ tailscale_dns_ip }}
+          --bind-dynamic
+          {% for domain in tailscale_dns_domains %}--address=/{{ domain }}/{{ tailscale_dns_ip }} {% endfor %}
+        restart_policy: unless-stopped
+        memory: "{{ tailscale_dns_memory }}"
+  when: tailscale_dns_enabled is true
+
+- name: Stop Tailscale DNS
+  block:
+    - name: Stop Tailscale DNS
+      community.docker.docker_container:
+        name: "{{ tailscale_dns_container_name }}"
+        state: absent
+  when: tailscale_dns_enabled is false
