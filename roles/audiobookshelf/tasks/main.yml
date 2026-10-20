@@ -1,0 +1,66 @@
+---
+- name: Start Audiobookshelf
+  block:
+    - name: Create Audiobookshelf Directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ audiobookshelf_user_id }}"
+        group: "{{ audiobookshelf_group_id }}"
+        mode: 0755
+      with_items:
+        - "{{ audiobookshelf_data_directory }}/config"
+        - "{{ audiobookshelf_data_directory }}/metadata"
+
+    - name: Audiobookshelf Docker Container
+      community.docker.docker_container:
+        name: "{{ audiobookshelf_container_name }}"
+        image: "{{ audiobookshelf_image_name }}:{{ audiobookshelf_image_version }}"
+        pull: true
+        # The image runs as root unless told otherwise; run as the media owner
+        # so files it writes into the shares stay editable over samba.
+        user: "{{ audiobookshelf_user_id }}:{{ audiobookshelf_group_id }}"
+        volumes:
+          - "{{ audiobookshelf_data_directory }}/config:/config:rw"
+          - "{{ audiobookshelf_data_directory }}/metadata:/metadata:rw"
+          - "{{ audiobookshelf_audiobooks_directory }}:/audiobooks:rw"
+          - "{{ audiobookshelf_podcasts_directory }}:/podcasts:rw"
+        ports:
+          - "{{ audiobookshelf_port }}:13378"
+        env:
+          TZ: "{{ ansible_nas_timezone }}"
+          # Listen on an unprivileged port (default is 80) since we're not root.
+          PORT: "13378"
+        restart_policy: unless-stopped
+        memory: "{{ audiobookshelf_memory }}"
+        memory_swap: "{{ audiobookshelf_memory }}"
+        pids_limit: 200
+        cpu_shares: 512
+        healthcheck:
+          # Alpine image: busybox wget, no curl.
+          test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:13378/healthcheck || exit 1"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 60s
+        labels:
+          traefik.enable: "{{ audiobookshelf_available_externally | string }}"
+          traefik.http.routers.audiobookshelf.rule: "Host(`{{ audiobookshelf_hostname }}.{{ ansible_nas_domain }}`)"
+          traefik.http.routers.audiobookshelf.tls.certresolver: "letsencrypt"
+          traefik.http.routers.audiobookshelf.tls.domains[0].main: "{{ ansible_nas_domain }}"
+          traefik.http.routers.audiobookshelf.tls.domains[0].sans: "*.{{ ansible_nas_domain }}"
+          traefik.http.services.audiobookshelf.loadbalancer.server.port: "13378"
+          homepage.group: "Media"
+          homepage.name: "Audiobookshelf"
+          homepage.icon: "audiobookshelf"
+          homepage.href: "https://{{ audiobookshelf_hostname }}.{{ hostvars[inventory_hostname]['ansible_nas_domain'] }}"
+          homepage.description: "Audiobooks and podcasts"
+  when: audiobookshelf_enabled is true
+
+- name: Stop Audiobookshelf
+  block:
+    - name: Stop Audiobookshelf
+      community.docker.docker_container:
+        name: "{{ audiobookshelf_container_name }}"
+        state: absent
+  when: audiobookshelf_enabled is false

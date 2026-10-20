@@ -1,0 +1,24 @@
+---
+audiobookshelf_enabled: false
+audiobookshelf_available_externally: false
+
+# uid / gid
+audiobookshelf_user_id: "1000"
+audiobookshelf_group_id: "1000"
+
+# directories
+audiobookshelf_data_directory: "{{ docker_home }}/audiobookshelf"
+audiobookshelf_audiobooks_directory: "{{ audiobooks_root }}"
+audiobookshelf_podcasts_directory: "{{ podcasts_root }}"
+
+# network
+audiobookshelf_port: "13378"
+audiobookshelf_hostname: "audiobookshelf"
+
+# docker
+audiobookshelf_container_name: audiobookshelf
+audiobookshelf_image_name: "ghcr.io/advplyr/audiobookshelf"
+audiobookshelf_image_version: "latest"
+
+# specs
+audiobookshelf_memory: 1g
